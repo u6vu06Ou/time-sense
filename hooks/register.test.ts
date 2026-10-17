@@ -1,0 +1,24 @@
+import { test, expect, mock } from 'claude-code/testing'
+
+const MIN = 60_000
+
+function setup($: any, on: any) {
+  const clock = mock.clock(on)
+  mock.store(on)
+  const seen: (readonly string[] | undefined)[] = []
+  on('prompt.submit', (_: any, e: any) => { seen.push(e.context); return { text: e.text } })
+  const send = (text: string) => $.prompt.submit({ text })
+  return { clock, seen, send }
+}
+
+test('first prompt gets the time; a quick follow-up gets nothing; a long gap gets the gap', async ($, on) => {
+  const s = setup($, on)
+  await s.send('a')
+  expect(String(s.seen[0])).toContain('[time] now')
+  await s.clock.advance(5 * MIN)
+  await s.send('b')
+  expect(s.seen[1]).toBeUndefined()
+  await s.clock.advance(6 * 60 * MIN)
+  await s.send('c')
+  expect(String(s.seen[2])).toContain('6h')
+})

@@ -1,0 +1,6 @@
+{
+  "name": "time-sense",
+  "owner": { "name": "u6vu06Ou" },
+  "description": "Gives Claude Code a sense of time: the clock after a long gap, and how long its own turns really take.",
+  "plugins": [{ "name": "time-sense", "source": "./" }]
+}

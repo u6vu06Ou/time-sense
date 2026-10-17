@@ -1,0 +1,23 @@
+# --- 機密，永遠不准進版控（oss_scan 也會擋）---
+.env
+.env.*
+secrets.md
+SECRETS.md
+*.pem
+*.pfx
+*.key
+id_rsa*
+.oss-scan-allow
+
+# --- 本機設定／產物 ---
+*.log
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+dist/
+build/
+.DS_Store
+Thumbs.db
+.claude/
