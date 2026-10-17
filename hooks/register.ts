@@ -32,21 +32,37 @@ async function paceLine($: any) {
   return `[pace] your last ${s.length} turns took median ${span(median)}, longest ${span(s[s.length - 1])} of real time. Estimate durations in these terms, not human workdays.`
 }
 
+// Per-conversation last-active time, so a resumed or overnight conversation sees its own gap.
+async function markActive($: any, id: string, now: number) {
+  const map = ((await $.store.get('lastBySession')) as Record<string, number> | undefined) ?? {}
+  map[id] = now
+  const keep = Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 200)
+  await $.store.set('lastBySession', Object.fromEntries(keep))
+  await $.store.set('lastActive', now)
+}
+
 export const register: Register = on => {
   on('prompt.submit', async ($, e, next) => {
     const now = await $.clock.now()
-    const last = (await $.store.get('lastActive')) as number | undefined
-    await $.store.set('lastActive', now)
+    const id = await $.session.id()
+    const bySession = ((await $.store.get('lastBySession')) as Record<string, number> | undefined) ?? {}
+    const mine = bySession[id]
+    const any = (await $.store.get('lastActive')) as number | undefined
+    await markActive($, id, now)
+    const last = mine ?? any
     const notes: string[] = []
     if (last === undefined || now - last >= GAP_MS || !sessionNoted) {
-      notes.push(`[time] now ${stamp(now)}` + (last === undefined ? '' : ` · last activity ${span(now - last)} ago`))
+      const ago = last === undefined ? '' : mine !== undefined
+        ? ` · this conversation's last message ${span(now - mine)} ago`
+        : ` · last activity ${span(now - last)} ago`
+      notes.push(`[time] now ${stamp(now)}` + ago)
     }
     if (!sessionNoted) {
       sessionNoted = true
       const pace = await paceLine($)
       if (pace) notes.push(pace)
     }
-    return notes.length ? next({ ...e, context: [...(e.context ?? []), notes.join('\n')] }) : next(e)
+    return notes.length ? next({ ...e, context: [...(e.context ?? []), notes.join(String.fromCharCode(10))] }) : next(e)
   }).catch(($, e, next) => next(e))
 
   on('turn.start', async ($, e, next) => {
@@ -59,7 +75,7 @@ export const register: Register = on => {
       const now = await $.clock.now()
       const list = ((await $.store.get('durations')) as number[] | undefined) ?? []
       await $.store.set('durations', [...list, now - turnStartedAt].slice(-KEEP))
-      await $.store.set('lastActive', now)
+      await markActive($, await $.session.id(), now)
       turnStartedAt = undefined
     }
     return next(e)

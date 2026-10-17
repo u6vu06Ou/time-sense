@@ -5,6 +5,7 @@ const MIN = 60_000
 function setup($: any, on: any) {
   const clock = mock.clock(on)
   mock.store(on)
+  on('session.id', () => ({ value: 's1' }))
   const seen: (readonly string[] | undefined)[] = []
   on('prompt.submit', (_: any, e: any) => { seen.push(e.context); return { text: e.text } })
   const send = (text: string) => $.prompt.submit({ text })
@@ -20,5 +21,5 @@ test('first prompt gets the time; a quick follow-up gets nothing; a long gap get
   expect(s.seen[1]).toBeUndefined()
   await s.clock.advance(6 * 60 * MIN)
   await s.send('c')
-  expect(String(s.seen[2])).toContain('6h')
+  expect(String(s.seen[2])).toContain("conversation's last message 6h")
 })
