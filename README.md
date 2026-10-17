@@ -4,11 +4,11 @@ A Claude Code mod that gives the agent a sense of time, for a few dozen tokens.
 
 **The problem.** An agent has no clock. Come back after six hours and it acts as if no time passed. Ask how long a task will take and it answers in human workdays ("1–2 days") for work it finishes in ten minutes.
 
-**Real situations it fixes.**
+**Situations it is meant for.** (What changes is what the model *sees*; how it reacts is up to the model. These are the cases I wrote it for, not measured results.)
 
-- *"I'm going to bed, let's continue tomorrow."* You come back 9 hours later in the same conversation and the agent still says "Sure, get some rest!" — every reply, even after finishing the work. With time-sense it reads `this conversation's last message 9h05m ago` and knows you already slept.
-- *Resuming an old conversation.* You `--resume` a session from three weeks ago. Without a clock the agent assumes it's still that day: same plans, same "we'll do it tomorrow", stale assumptions about what's running. With time-sense it sees `last message 21d3h ago` and re-checks before acting.
-- *"How long will this take?"* The agent says "1–2 days" for something it finishes in 12 minutes. time-sense shows it its own measured pace, so estimates come out in minutes.
+- *"I'm going to bed, let's continue tomorrow."* You come back the next morning in the same conversation. Without a clock the agent can't tell whether 2 minutes or 9 hours passed. time-sense shows it `this conversation's last message 9h05m ago`.
+- *Resuming an old conversation.* You `--resume` a session from three weeks ago. The agent sees `last message 21d3h ago`, a cue that plans and "what's running" may be stale.
+- *"How long will this take?"* Agents tend to answer in human workdays. time-sense shows the agent its own measured turn times, so it has real numbers to estimate from.
 
 **What it does.**
 
@@ -27,6 +27,8 @@ Cost: ~20 tokens per gap, ~30 tokens once per session. No model calls, no system
 /plugin install time-sense --marketplace u6vu06Ou/time-sense
 ```
 
+(Answer `y` to add the marketplace, then pick the **user** scope so it works in every project. Pick project scope if you want it in one project only.)
+
 ## Notes
 
 - Uses your machine's local time zone.
@@ -36,4 +38,4 @@ Cost: ~20 tokens per gap, ~30 tokens once per session. No model calls, no system
 
 ## 繁中簡介
 
-讓 Claude Code 有時間感：隔很久回來會知道現在幾點、這個對話上一則訊息是多久以前（例如說「我去睡了」，隔天回來它會知道你已經睡醒；resume 幾週前的對話，它會知道已經過了幾週）；估時間時會參考自己實際每回合花多久，不再把 10 分鐘的事估成 1～2 天。每次只加幾十個 token，連續聊天時完全不加。
+讓 Claude Code 有時間感：隔很久回來時，偷偷告訴 AI 現在幾點、這個對話上一則訊息是多久以前；每個對話第一次發言時，也告訴它自己平常一回合實際花多久。這些情境是我設計它要解決的（例如「我去睡了」隔天回來、resume 幾週前的對話、把 10 分鐘的事估成 1～2 天），AI 看到後怎麼反應由它自己決定，不是保證的效果。每次只加幾十個 token，連續聊天時完全不加。安裝時選 user 範圍＝所有專案都有效。
