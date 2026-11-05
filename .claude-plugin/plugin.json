@@ -1,1 +1,1 @@
-{ "name": "time-sense", "version": "0.2.0", "description": "Tells the model the time on every prompt (plus the gap after a long silence), how long its own turns really take, and pins when the last turn ended.", "author": { "name": "u6vu06Ou" } }
+{ "name": "time-sense", "version": "0.3.0", "description": "Tells the model the time on every prompt (plus the gap after a long silence), how long its own turns really take.", "author": { "name": "u6vu06Ou" } }

@@ -71,9 +71,6 @@ export const register: Register = on => {
   })
 
   on('turn.complete', async ($, e, next) => {
-    if (!(e as any).agentId) {
-      try { $.ui.status(`⏱ ${stamp(await $.clock.now()).slice(5)}`) } catch {}
-    }
     if (!(e as any).agentId && turnStartedAt !== undefined) {
       const now = await $.clock.now()
       const list = ((await $.store.get('durations')) as number[] | undefined) ?? []

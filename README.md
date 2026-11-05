@@ -12,7 +12,7 @@ A Claude Code mod that gives the agent a sense of time, for a few tokens per pro
 - *Resuming an old conversation.* You `--resume` a session from three weeks ago. The agent sees `last message 21d3h ago`, a cue that plans and "what's running" may be stale.
 - *"How long will this take?"* Agents tend to answer in human workdays. time-sense shows the agent its own measured turn times, so it has real numbers to estimate from.
 
-**What it does.**
+**What it does.** Everything goes to the model only; nothing is drawn on your screen.
 
 1. **Clock on every prompt.** Every prompt you send carries one hidden line the model reads:
    `[time] now 2026-10-17 Sat 21:40`
@@ -21,7 +21,6 @@ A Claude Code mod that gives the agent a sense of time, for a few tokens per pro
    The gap is tracked per conversation, so resuming an old session shows that session's own gap.
 2. **Real pace.** It records how long each main-loop turn actually took (wall clock). Once it has 5+ samples, the first prompt of each session also gets:
    `[pace] your last 40 turns took median 4m, longest 38m of real time. Estimate durations in these terms, not human workdays.`
-3. **When did it finish?** At the end of every main-loop turn it pins the end time in the status line under the prompt, e.g. `⏱ 10-17 Sat 21:52`. Unlike Claude Code's own "done" stamp, it shows for short turns too, and while background agents are still running. (This is for you, not the model; it costs no tokens.)
 
 Cost: ~12 tokens per prompt, ~20 more per gap, ~30 once per session. No model calls, no system-prompt changes (so prompt caching is untouched). If the mod fails, the prompt goes through unchanged.
 
@@ -46,7 +45,7 @@ These cues supply evidence to the model, not a guarantee that its estimates or b
 
 ## Notes
 
-- Background-task notifications (a subagent reporting back) are not prompts, so they carry no clock line; the status line still updates when that turn ends.
+- Background-task notifications (a subagent reporting back) are not prompts, so they carry no clock line.
 
 - Uses your machine's local time zone.
 - Durations are stored with the mod's own store (last 40 turns); nothing leaves your machine.
