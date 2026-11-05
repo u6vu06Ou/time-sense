@@ -51,12 +51,12 @@ export const register: Register = on => {
     await markActive($, id, now)
     const last = mine ?? any
     const notes: string[] = []
-    if (last === undefined || now - last >= GAP_MS || !sessionNoted) {
-      const ago = last === undefined ? '' : mine !== undefined
-        ? ` · this conversation's last message ${span(now - mine)} ago`
-        : ` · last activity ${span(now - last)} ago`
-      notes.push(`[time] now ${stamp(now)}` + ago)
-    }
+    // Every prompt carries the time (a few tokens); the gap is added only after a long silence.
+    const longGap = last === undefined || now - last >= GAP_MS || !sessionNoted
+    const ago = !longGap || last === undefined ? '' : mine !== undefined
+      ? ` · this conversation's last message ${span(now - mine)} ago`
+      : ` · last activity ${span(now - last)} ago`
+    notes.push(`[time] now ${stamp(now)}` + ago)
     if (!sessionNoted) {
       sessionNoted = true
       const pace = await paceLine($)
@@ -71,6 +71,9 @@ export const register: Register = on => {
   })
 
   on('turn.complete', async ($, e, next) => {
+    if (!(e as any).agentId) {
+      try { $.ui.status(`⏱ ${stamp(await $.clock.now()).slice(5)}`) } catch {}
+    }
     if (!(e as any).agentId && turnStartedAt !== undefined) {
       const now = await $.clock.now()
       const list = ((await $.store.get('durations')) as number[] | undefined) ?? []
